@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Drawer, IconButton, List, ListItem, ListItemText } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import logo from '../assets/images/Logo.svg';
+import LoginModal from './LoginModal';
 
 const Nav = styled.nav`
   display: flex;
@@ -78,9 +79,18 @@ const MobileMenuButton = styled(IconButton)`
 
 const Header = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
+  };
+
+  const handleModalOpen = () => {
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
   };
 
   const drawerList = (
@@ -91,7 +101,7 @@ const Header = () => {
       <ListItem button component={Link} to="/products" onClick={toggleDrawer(false)}>
         <ListItemText primary="Produits" />
       </ListItem>
-      <ListItem button component={Link} to="/admin" onClick={toggleDrawer(false)}>
+      <ListItem button onClick={handleModalOpen}>
         <ListItemText primary="Admin" />
       </ListItem>
     </List>
@@ -106,7 +116,7 @@ const Header = () => {
         <div className="nav-links-container">
           <NavLink><ButtonLink to="/">Accueil</ButtonLink></NavLink>
           <NavLink><ButtonLink to="/products">Produits</ButtonLink></NavLink>
-          <NavLink><ButtonLink to="/admin">Admin</ButtonLink></NavLink>
+          <NavLink><ButtonLink  onClick={handleModalOpen}>Admin</ButtonLink></NavLink>
         </div>
       </DesktopNavLinks>
       <MobileNavContainer>
@@ -120,6 +130,7 @@ const Header = () => {
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         {drawerList}
       </Drawer>
+      <LoginModal open={modalOpen} handleClose={handleModalClose} />
     </Nav>
   );
 };

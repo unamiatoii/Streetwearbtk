@@ -59,6 +59,7 @@ const HeroButton = styled(motion.a)`
 
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryDark};
+     color: white;
   }
 
   svg {
@@ -68,6 +69,7 @@ const HeroButton = styled(motion.a)`
 
   &:hover svg {
     transform: translateX(5px);
+    color: white;
   }
 
   @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
