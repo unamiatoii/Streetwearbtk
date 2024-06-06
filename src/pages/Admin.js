@@ -1,108 +1,153 @@
-// frontend/src/pages/Admin.js
+// frontend/src/components/LoginModal.js
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import styled from 'styled-components';
+import { Modal, Backdrop, Fade, TextField } from '@mui/material';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/images/Logo.svg'; // Adjust the path as necessary
 
-const Container = styled.div`
-  padding: 20px;
+const ModalWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 `;
 
-const Form = styled.form`
+const ModalContent = styled.div`
+  background-color: black;
+  border-radius: 8px;
+  padding: 50px 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-`;
+  justify-content: space-between;
+  width: 400px;
+  text-align: center;
 
-const Input = styled.input`
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-`;
-
-const Button = styled.button`
-  padding: 10px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primaryDark};
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    width: 90%;
   }
 `;
 
-function Admin() {
-  const [product, setProduct] = useState({
-    nom: '',
-    description: '',
-    prix: '',
-    categorie: '',
-    imageUrl: ''
-  });
+const Title = styled.h2`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: white;
+  img {
+    height: 40px; // Adjust the size of the logo as needed
+  }
+`;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProduct(prevState => ({
-      ...prevState,
-      [name]: value
-    }));
-  };
+const StyledTextField = styled(TextField)`
+  width: 100%;
+  margin-bottom: 20px;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    axios.post('https://backend-cpi3.onrender.com/api/products', product)
-      .then(response => {
-        alert('Produit créé avec succès');
-        setProduct({ nom: '', description: '', prix: '', categorie: '', imageUrl: '' });
-      })
-      .catch(error => console.error('Error creating product:', error));
+  .MuiInputBase-root {
+    background-color: white;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+
+  .MuiInputLabel-root {
+    color: ${(props) => props.theme.colors.lightText};
+  }
+`;
+
+const StyledButton = styled.button`
+  width: 50%;
+  padding: 10px;
+  background-color: white;
+  color: black;
+  border: 2px solid ${(props) => props.theme.colors.primary};
+  border-radius: 8px;
+  font-weight: bold;
+  margin-top: 20px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: ${(props) => props.theme.colors.primaryDark};
+    color: white;
+  }
+`;
+
+const ErrorMessage = styled.p`
+  color: red;
+  margin-top: 20px;
+`;
+
+const LoginModal = ({ open, handleClose }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post('https://your-backend-url/api/login', {
+        username,
+        password,
+      });
+      const token = response.data.token;
+      // Store the token in localStorage
+      localStorage.setItem('authToken', token);
+      // Handle successful login
+      console.log('Login successful:', response.data);
+      handleClose(); // Close the modal on successful login
+      navigate('/admin'); // Navigate to the admin route
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please check your credentials and try again.');
+    }
   };
 
   return (
-    <Container>
-      <h1>Admin</h1>
-      <Form onSubmit={handleSubmit}>
-        <Input
-          type="text"
-          name="nom"
-          value={product.nom}
-          onChange={handleChange}
-          placeholder="Nom du produit"
-        />
-        <Input
-          type="text"
-          name="description"
-          value={product.description}
-          onChange={handleChange}
-          placeholder="Description du produit"
-        />
-        <Input
-          type="number"
-          name="prix"
-          value={product.prix}
-          onChange={handleChange}
-          placeholder="Prix du produit"
-        />
-        <Input
-          type="text"
-          name="categorie"
-          value={product.categorie}
-          onChange={handleChange}
-          placeholder="Catégorie du produit"
-        />
-        <Input
-          type="text"
-          name="imageUrl"
-          value={product.imageUrl}
-          onChange={handleChange}
-          placeholder="URL de l'image du produit"
-        />
-        <Button type="submit">Ajouter le produit</Button>
-      </Form>
-    </Container>
+    <Modal
+      open={open}
+      onClose={handleClose}
+      closeAfterTransition
+      BackdropComponent={Backdrop}
+      BackdropProps={{
+        timeout: 500,
+      }}
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Fade in={open}>
+        <ModalWrapper>
+          <ModalContent>
+            <Title>
+              <img src={logo} alt="Logo" />
+              Connexion Admin
+            </Title>
+            <form onSubmit={handleLogin}>
+              <StyledTextField
+                variant="outlined"
+                label="Nom d'utilisateur"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <StyledTextField
+                variant="outlined"
+                label="Mot de passe"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <StyledButton type="submit">Se connecter</StyledButton>
+              {error && <ErrorMessage>{error}</ErrorMessage>}
+            </form>
+          </ModalContent>
+        </ModalWrapper>
+      </Fade>
+    </Modal>
   );
-}
+};
 
-export default Admin;
+export default LoginModal;

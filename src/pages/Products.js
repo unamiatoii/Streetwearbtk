@@ -38,6 +38,7 @@ const ProductImage = styled.img`
 `;
 
 const ProductDetails = styled.div`
+color: white;
   margin-top: 10px;
   @media (min-width: ${(props) => props.theme.breakpoints.mobile}) {
     margin-top: 0;

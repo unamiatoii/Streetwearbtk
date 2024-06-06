@@ -7,6 +7,7 @@ import { Typewriter } from 'react-simple-typewriter';
 import { FaShoppingBag } from 'react-icons/fa';
 import image1 from '../assets/images/back.svg';
 import image2 from '../assets/images/hoodie.png';
+import '../index.css';
 
 const HeroSection = styled.section`
   margin-top: 5rem;
@@ -54,7 +55,7 @@ const HeroButton = styled(motion.a)`
   border-radius: 5px;
   text-decoration: none;
   font-size: 1.2em;
-  width: 50%;
+  width: 15%;
   margin-top: 20px;
 
   &:hover {
@@ -101,7 +102,7 @@ const Hero = () => {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <Typewriter
-            words={['Restez soins !', 'Rester frais !']}
+            words={['Restez soins !', 'Restez frais !']}
             loop={true}
             cursor
             cursorStyle='|'

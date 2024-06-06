@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Modal, Fade, TextField } from '@mui/material';
+import { Modal, Fade, TextField, CircularProgress } from '@mui/material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/images/Logo.svg'; // Adjust the path as necessary
@@ -82,17 +82,22 @@ const LoginModal = ({ open, handleClose }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (event) => {
     event.preventDefault();
     setError('');
+    setLoading(true);
 
     try {
-      const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', {
+      const response = await axios.post(`https://backend-cpi3.onrender.com/api/auth/login`, {
         username,
         password,
       });
+      const token = response.data.token;
+      // Store the token in localStorage
+      localStorage.setItem('authToken', token);
       // Handle successful login
       console.log('Login successful:', response.data);
       handleClose(); // Close the modal on successful login
@@ -100,6 +105,8 @@ const LoginModal = ({ open, handleClose }) => {
     } catch (error) {
       console.error('Login failed:', error);
       setError('Login failed. Please check your credentials and try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,7 +115,6 @@ const LoginModal = ({ open, handleClose }) => {
       open={open}
       onClose={handleClose}
       closeAfterTransition
-      
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Fade in={open}>
@@ -125,6 +131,7 @@ const LoginModal = ({ open, handleClose }) => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                disabled={loading}
               />
               <StyledTextField
                 variant="outlined"
@@ -133,8 +140,11 @@ const LoginModal = ({ open, handleClose }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                disabled={loading}
               />
-              <StyledButton type="submit">Se connecter</StyledButton>
+              <StyledButton type="submit" disabled={loading}>
+                {loading ? <CircularProgress size={24} /> : 'Se connecter'}
+              </StyledButton>
               {error && <ErrorMessage>{error}</ErrorMessage>}
             </form>
           </ModalContent>

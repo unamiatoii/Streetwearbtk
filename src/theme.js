@@ -1,14 +1,15 @@
 // frontend/src/theme.js
 
 import { createGlobalStyle } from 'styled-components';
-
 import image1 from './assets/images/back.svg';
+import './index.css';
+
 
 export const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    -webkit-font-smoothing: antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Alata', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    
     -moz-osx-font-smoothing: grayscale;
     padding: 0;
     box-sizing: border-box;
