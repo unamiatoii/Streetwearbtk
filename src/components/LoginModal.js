@@ -1,8 +1,10 @@
 // frontend/src/components/LoginModal.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Modal, Fade, TextField } from '@mui/material';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import logo from '../assets/images/Logo.svg'; // Adjust the path as necessary
 
 const ModalWrapper = styled.div`
@@ -71,12 +73,42 @@ const StyledButton = styled.button`
   }
 `;
 
+const ErrorMessage = styled.p`
+  color: red;
+  margin-top: 20px;
+`;
+
 const LoginModal = ({ open, handleClose }) => {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+    setError('');
+
+    try {
+      const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', {
+        username,
+        password,
+      });
+      // Handle successful login
+      console.log('Login successful:', response.data);
+      handleClose(); // Close the modal on successful login
+      navigate('/admin'); // Navigate to the admin route
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please check your credentials and try again.');
+    }
+  };
+
   return (
     <Modal
       open={open}
       onClose={handleClose}
       closeAfterTransition
+      
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
     >
       <Fade in={open}>
@@ -84,22 +116,26 @@ const LoginModal = ({ open, handleClose }) => {
           <ModalContent>
             <Title>
               <img src={logo} alt="Logo" />
-              Connectez-vous 
-              <img src={logo} alt="Logo" />
+              Connexion Admin
             </Title>
-            <form>
+            <form onSubmit={handleLogin}>
               <StyledTextField
                 variant="outlined"
                 label="Nom d'utilisateur"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
               <StyledTextField
                 variant="outlined"
                 label="Mot de passe"
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <StyledButton type="submit">Connexion</StyledButton>
+              <StyledButton type="submit">Se connecter</StyledButton>
+              {error && <ErrorMessage>{error}</ErrorMessage>}
             </form>
           </ModalContent>
         </ModalWrapper>
