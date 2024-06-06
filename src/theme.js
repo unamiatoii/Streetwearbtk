@@ -2,6 +2,8 @@
 
 import { createGlobalStyle } from 'styled-components';
 
+import image1 from './assets/images/back.svg';
+
 export const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
@@ -11,6 +13,8 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0;
     box-sizing: border-box;
     background-color: #231f20;
+    background-image: url(${image1});
+  
   }
   code {
     font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;

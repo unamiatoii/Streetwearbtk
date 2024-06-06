@@ -31,7 +31,7 @@ const DesktopNavLinks = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 99%;
-  list-style: none;none;
+  list-style: none;
 
   .nav-links-container {
     display: flex;
@@ -65,6 +65,7 @@ const ButtonLink = styled(Link)`
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
+  transition: background-color 0.3s, color 0.3s; // Smooth transition for hover effect
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryDark};
     color: white;
@@ -113,7 +114,7 @@ const Header = () => {
           <LogoImage src={logo} alt="Boutique Logo" />
         </Link>
         <MobileMenuButton onClick={toggleDrawer(true)}>
-          <MenuIcon />
+          <MenuIcon style={{ color: 'white' }} />
         </MobileMenuButton>
       </MobileNavContainer>
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>

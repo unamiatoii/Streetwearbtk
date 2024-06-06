@@ -3,16 +3,33 @@
 import React from 'react';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
+import { Typewriter } from 'react-simple-typewriter';
+import { FaShoppingBag } from 'react-icons/fa';
+import image1 from '../assets/images/back.svg';
+import image2 from '../assets/images/hoodie.png';
 
 const HeroSection = styled.section`
+  margin-top: 5rem;
+  background-image: url(${image1});
+  background-size: cover;
+  background-position: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: url('https://example.com/hero-image.jpg') no-repeat center center/cover;
-  height: 400px;
+  height: 500px;
   color: white;
   text-align: center;
+  padding: 20px;
+
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    height: auto;
+    padding: 40px 20px;
+  }
+`;
+
+const Column = styled.div`
+  flex: 1;
   padding: 20px;
 `;
 
@@ -27,34 +44,74 @@ const HeroSubtitle = styled(motion.p)`
 `;
 
 const HeroButton = styled(motion.a)`
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  padding: 10px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  color:  ${(props) => props.theme.colors.primaryDark};
+  font-weight: bold;
+  padding: 15px 30px;
   border-radius: 5px;
   text-decoration: none;
-  font-size: 1em;
+  font-size: 1.2em;
+  width: 50%;
+  margin-top: 20px;
+
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryDark};
   }
+
+  svg {
+    margin-left: 10px;
+    transition: transform 0.3s;
+  }
+
+  &:hover svg {
+    transform: translateX(5px);
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
+    width: 80%;
+  }
+`;
+
+const Image = styled.img`
+  width: 90%;
+  height: auto;
+  border-radius: 10px;
 `;
 
 const Hero = () => {
   return (
     <HeroSection>
-      <HeroTitle
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        Bienvenue à notre Boutique
-      </HeroTitle>
-      <HeroSubtitle
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        Découvrez nos produits exclusifs et nos offres spéciales
-      </HeroSubtitle>
+      {/* Text and Image */}
+      <Column>
+        <HeroTitle
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          Bienvenue chez Vintage Clothes
+        </HeroTitle>
+        <HeroSubtitle
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
+          <Typewriter
+            words={['Restez soins !', 'Rester frais !']}
+            loop={true}
+            cursor
+            cursorStyle='|'
+            typeSpeed={70}
+            deleteSpeed={50}
+            delaySpeed={1000}
+          />
+        </HeroSubtitle>
+        <Image src={image2} alt="Streetwear" />
+      </Column>
+
+      {/* Button */}
       <HeroButton
         href="/products"
         initial={{ opacity: 0 }}
@@ -62,7 +119,7 @@ const Hero = () => {
         transition={{ duration: 0.5, delay: 0.6 }}
         whileHover={{ scale: 1.1 }}
       >
-        Commencez vos achats
+        Visiter la boutique <FaShoppingBag />
       </HeroButton>
     </HeroSection>
   );
