@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { TextField, CircularProgress } from '@mui/material';
+import { TextField, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import axios from 'axios';
 
 const StyledTextField = styled(TextField)`
@@ -35,123 +37,150 @@ const StyledButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.p`
-  color: red;
-  margin-top: 20px;
-`;
+const validationSchema = yup.object({
+  username: yup.string('Enter your username').required('Username is required'),
+  password: yup
+    .string('Enter your password')
+    .min(8, 'Password should be of minimum 8 characters length')
+    .required('Password is required'),
+  email: yup.string('Enter your email').email('Enter a valid email').required('Email is required'),
+  firstName: yup.string('Enter your first name').required('First name is required'),
+  lastName: yup.string('Enter your last name').required('Last name is required'),
+  street: yup.string('Enter your street').required('Street is required'),
+  city: yup.string('Enter your city').required('City is required'),
+  phone: yup.string('Enter your phone number').required('Phone number is required'),
+});
 
 const RegisterForm = ({ handleClose, showNotification }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [street, setStreet] = useState('');
-  const [city, setCity] = useState('');
-  const [phone, setPhone] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleRegister = async (event) => {
-    event.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/register', {
-        username,
-        password,
-        email,
-        firstName,
-        lastName,
-        address: { street, city },
-        phone,
-        role: 'customer',
-      });
-      console.log('Registration successful:', response.data);
-      showNotification('Registration successful!', 'success');
-      handleClose();
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setError('Registration failed. Please try again.');
-      showNotification('Registration failed. Please try again.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+      email: '',
+      firstName: '',
+      lastName: '',
+      street: '',
+      city: '',
+      phone: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/register', {
+          username: values.username,
+          password: values.password,
+          email: values.email,
+          firstName: values.firstName,
+          lastName: values.lastName,
+          address: { street: values.street, city: values.city },
+          phone: values.phone,
+          role: 'customer',
+        });
+        console.log('Registration successful:', response.data);
+        showNotification('Registration successful!', 'success');
+        handleClose();
+      } catch (error) {
+        console.error('Registration failed:', error);
+        showNotification('Registration failed. Please try again.', 'error');
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleRegister}>
+    <form onSubmit={formik.handleSubmit}>
       <StyledTextField
         variant="outlined"
         label="Nom"
-        value={lastName}
-        onChange={(e) => setLastName(e.target.value)}
+        name="lastName"
+        value={formik.values.lastName}
+        onChange={formik.handleChange}
+        error={formik.touched.lastName && Boolean(formik.errors.lastName)}
+        helperText={formik.touched.lastName && formik.errors.lastName}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Prénom"
-        value={firstName}
-        onChange={(e) => setFirstName(e.target.value)}
+        name="firstName"
+        value={formik.values.firstName}
+        onChange={formik.handleChange}
+        error={formik.touched.firstName && Boolean(formik.errors.firstName)}
+        helperText={formik.touched.firstName && formik.errors.firstName}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Email"
+        name="email"
         type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        value={formik.values.email}
+        onChange={formik.handleChange}
+        error={formik.touched.email && Boolean(formik.errors.email)}
+        helperText={formik.touched.email && formik.errors.email}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Ville"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
+        name="city"
+        value={formik.values.city}
+        onChange={formik.handleChange}
+        error={formik.touched.city && Boolean(formik.errors.city)}
+        helperText={formik.touched.city && formik.errors.city}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Quartier"
-        value={street}
-        onChange={(e) => setStreet(e.target.value)}
+        name="street"
+        value={formik.values.street}
+        onChange={formik.handleChange}
+        error={formik.touched.street && Boolean(formik.errors.street)}
+        helperText={formik.touched.street && formik.errors.street}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Téléphone"
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
+        name="phone"
+        value={formik.values.phone}
+        onChange={formik.handleChange}
+        error={formik.touched.phone && Boolean(formik.errors.phone)}
+        helperText={formik.touched.phone && formik.errors.phone}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Nom d'utilisateur"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        name="username"
+        value={formik.values.username}
+        onChange={formik.handleChange}
+        error={formik.touched.username && Boolean(formik.errors.username)}
+        helperText={formik.touched.username && formik.errors.username}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Mot de passe"
+        name="password"
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        value={formik.values.password}
+        onChange={formik.handleChange}
+        error={formik.touched.password && Boolean(formik.errors.password)}
+        helperText={formik.touched.password && formik.errors.password}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
-      <StyledButton type="submit" disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : "S'inscrire"}
+      <StyledButton type="submit" disabled={formik.isSubmitting}>
+        {formik.isSubmitting ? <CircularProgress size={24} /> : "S'inscrire"}
       </StyledButton>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
     </form>
   );
 };

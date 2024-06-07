@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import { TextField, CircularProgress } from '@mui/material';
+import { TextField, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { useFormik } from 'formik';
+import * as yup from 'yup';
 import axios from 'axios';
 
 const StyledTextField = styled(TextField)`
@@ -35,64 +37,64 @@ const StyledButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.p`
-  color: red;
-  margin-top: 20px;
-`;
+const validationSchema = yup.object({
+  username: yup.string('Enter your username').required('Username is required'),
+  password: yup
+    .string('Enter your password')
+    .min(8, 'Password should be of minimum 8 characters length')
+    .required('Password is required'),
+});
 
 const LoginForm = ({ handleClose, navigate, showNotification }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setError('');
-    setLoading(true);
-
-    try {
-      const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', {
-        username,
-        password,
-      });
-      const token = response.data.token;
-      localStorage.setItem('authToken', token);
-      showNotification('Login successful!', 'success');
-      handleClose();
-      navigate('/admin');
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError('Login failed. Please check your credentials and try again.');
-      showNotification('Login failed. Please check your credentials and try again.', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      try {
+        const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', values);
+        const token = response.data.token;
+        localStorage.setItem('authToken', token);
+        showNotification('Login successful!', 'success');
+        handleClose();
+        navigate('/admin');
+      } catch (error) {
+        console.error('Login failed:', error);
+        showNotification('Login failed. Please check your credentials and try again.', 'error');
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={formik.handleSubmit}>
       <StyledTextField
         variant="outlined"
         label="Nom d'utilisateur"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        name="username"
+        value={formik.values.username}
+        onChange={formik.handleChange}
+        error={formik.touched.username && Boolean(formik.errors.username)}
+        helperText={formik.touched.username && formik.errors.username}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
       <StyledTextField
         variant="outlined"
         label="Mot de passe"
+        name="password"
         type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        value={formik.values.password}
+        onChange={formik.handleChange}
+        error={formik.touched.password && Boolean(formik.errors.password)}
+        helperText={formik.touched.password && formik.errors.password}
         required
-        disabled={loading}
+        disabled={formik.isSubmitting}
       />
-      <StyledButton type="submit" disabled={loading}>
-        {loading ? <CircularProgress size={24} /> : 'Se connecter'}
+      <StyledButton type="submit" disabled={formik.isSubmitting}>
+        {formik.isSubmitting ? <CircularProgress size={24} /> : 'Se connecter'}
       </StyledButton>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
     </form>
   );
 };
