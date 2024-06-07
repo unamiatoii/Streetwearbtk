@@ -1,31 +1,36 @@
-// frontend/src/components/LoginModal.js
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Modal, Fade, TextField, CircularProgress } from '@mui/material';
-import axios from 'axios';
+import { Modal, Fade, Snackbar, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import logo from '../assets/images/Logo.svg'; // Adjust the path as necessary
+import { CSSTransition } from 'react-transition-group';
+import logo from '../assets/images/Logo.svg';
+import LoginForm from './LoginForm';
+import RegisterForm from './RegisterForm';
+import './LoginModal.css';
 
 const ModalWrapper = styled.div`
-  display: flex;
+ display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  background-color: white;
+  
+    border-radius: 8px;
+  padding: 50px 20px;
 `;
 
 const ModalContent = styled.div`
-  background-color: black;
-  border-radius: 8px;
-  padding: 50px 20px;
+
+
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 400px;
+  width: 25vw;
   text-align: center;
 
   @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
     width: 90%;
+    max-height: 90vh;
   }
 `;
 
@@ -35,36 +40,35 @@ const Title = styled.h2`
   justify-content: center;
   gap: 10px;
   margin-bottom: 20px;
-  color: white;
+  color: ${(props) => props.theme.colors.lightText};
   img {
-    height: 40px; // Adjust the size of the logo as needed
+    height: 50px;
   }
 `;
 
-const StyledTextField = styled(TextField)`
-  width: 100%;
-  margin-bottom: 20px;
+const ToggleFormLink = styled.p`
+  color: ${(props) => props.theme.colors.lightText};
+  margin-top: 20px;
+  cursor: pointer;
 
-  .MuiInputBase-root {
-    background-color: white;
-    border-radius: 8px;
-    margin-bottom: 20px;
-  }
-
-  .MuiInputLabel-root {
-    color: ${(props) => props.theme.colors.lightText};
+  &:hover {
+    text-decoration: underline;
   }
 `;
 
-const StyledButton = styled.button`
-  width: 50%;
-  padding: 10px;
-  background-color: white;
+const ToggleButtonsWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+`;
+
+const ToggleButton = styled.button`
+  padding: 10px 20px;
   color: black;
   border: 2px solid ${(props) => props.theme.colors.primary};
   border-radius: 8px;
   font-weight: bold;
-  margin-top: 20px;
 
   &:hover {
     cursor: pointer;
@@ -73,84 +77,73 @@ const StyledButton = styled.button`
   }
 `;
 
-const ErrorMessage = styled.p`
-  color: red;
-  margin-top: 20px;
-`;
-
 const LoginModal = ({ open, handleClose }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: '' });
   const navigate = useNavigate();
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
-    setError('');
-    setLoading(true);
+  const handleNotificationClose = () => {
+    setNotification({ ...notification, open: false });
+  };
 
-    try {
-      const response = await axios.post(`https://backend-cpi3.onrender.com/api/auth/login`, {
-        username,
-        password,
-      });
-      const token = response.data.token;
-      // Store the token in localStorage
-      localStorage.setItem('authToken', token);
-      // Handle successful login
-      console.log('Login successful:', response.data);
-      handleClose(); // Close the modal on successful login
-      navigate('/admin'); // Navigate to the admin route
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError('Login failed. Please check your credentials and try again.');
-    } finally {
-      setLoading(false);
-    }
+  const showNotification = (message, severity) => {
+    setNotification({ open: true, message, severity });
   };
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      closeAfterTransition
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-    >
-      <Fade in={open}>
-        <ModalWrapper>
-          <ModalContent>
-            <Title>
-              <img src={logo} alt="Logo" />
-              Connexion Admin
-            </Title>
-            <form onSubmit={handleLogin}>
-              <StyledTextField
-                variant="outlined"
-                label="Nom d'utilisateur"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <StyledTextField
-                variant="outlined"
-                label="Mot de passe"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-              />
-              <StyledButton type="submit" disabled={loading}>
-                {loading ? <CircularProgress size={24} /> : 'Se connecter'}
-              </StyledButton>
-              {error && <ErrorMessage>{error}</ErrorMessage>}
-            </form>
-          </ModalContent>
-        </ModalWrapper>
-      </Fade>
-    </Modal>
+    <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        closeAfterTransition
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <Fade in={open}>
+          <ModalWrapper>
+            <ModalContent>
+              <Title>
+                <img src={logo} alt="Logo" />
+                {isLogin ? 'Ivorian French Plug' : 'Créer un compte'}
+                <img src={logo} alt="Logo" />
+              </Title>
+              <CSSTransition
+                in={isLogin}
+                timeout={300}
+                classNames="form"
+                unmountOnExit
+              >
+                <LoginForm handleClose={handleClose} navigate={navigate} showNotification={showNotification} />
+              </CSSTransition>
+              <CSSTransition
+                in={!isLogin}
+                timeout={300}
+                classNames="form"
+                unmountOnExit
+              >
+                <RegisterForm handleClose={handleClose} showNotification={showNotification} />
+              </CSSTransition>
+            </ModalContent>
+            <ToggleButtonsWrapper>
+              <ToggleButton onClick={() => setIsLogin(true)}>
+                J'ai deja un compte
+              </ToggleButton>
+              <ToggleButton onClick={() => setIsLogin(false)}>
+                Créer un compte
+              </ToggleButton>
+            </ToggleButtonsWrapper>
+          </ModalWrapper>
+        </Fade>
+      </Modal>
+      <Snackbar
+        open={notification.open}
+        autoHideDuration={6000}
+        onClose={handleNotificationClose}
+      >
+        <Alert onClose={handleNotificationClose} severity={notification.severity} sx={{ width: '100%' }}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

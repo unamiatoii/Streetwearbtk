@@ -20,10 +20,10 @@ const Nav = styled.nav`
 `;
 
 const LogoImage = styled.img`
-  height: 7rem; // Increased height for desktop views
+  height: 7rem;
   
   @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
-    height: 5rem; // Original height for mobile views
+    height: 5rem;
   }
 `;
 
@@ -66,7 +66,7 @@ const ButtonLink = styled(Link)`
   border-radius: 5px;
   text-decoration: none;
   font-weight: bold;
-  transition: background-color 0.3s, color 0.3s; // Smooth transition for hover effect
+  transition: background-color 0.3s, color 0.3s;
   &:hover {
     background-color: ${(props) => props.theme.colors.primaryDark};
     color: white;
@@ -77,7 +77,7 @@ const MobileMenuButton = styled(IconButton)`
   color: white;
 `;
 
-const Header = () => {
+const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -93,17 +93,30 @@ const Header = () => {
     setModalOpen(false);
   };
 
+  const handleLogout = () => {
+    onLogout();
+  };
+
   const drawerList = (
     <List>
       <ListItem button component={Link} to="/" onClick={toggleDrawer(false)}>
         <ListItemText primary="Accueil" />
       </ListItem>
-      <ListItem button component={Link} to="/products" onClick={toggleDrawer(false)}>
-        <ListItemText primary="Produits" />
-      </ListItem>
-      <ListItem button onClick={handleModalOpen}>
-        <ListItemText primary="Admin" />
-      </ListItem>
+      
+      {isAuthenticated && isAdmin && (
+        <ListItem button component={Link} to="/admin" onClick={toggleDrawer(false)}>
+          <ListItemText primary="Admin" />
+        </ListItem>
+      )}
+      {isAuthenticated ? (
+        <ListItem button onClick={handleLogout}>
+          <ListItemText primary="Déconnexion" />
+        </ListItem>
+      ) : (
+        <ListItem button onClick={handleModalOpen}>
+          <ListItemText primary="Se connecter / S'inscrire" />
+        </ListItem>
+      )}
     </List>
   );
 
@@ -115,8 +128,14 @@ const Header = () => {
         </Link>
         <div className="nav-links-container">
           <NavLink><ButtonLink to="/">Accueil</ButtonLink></NavLink>
-          <NavLink><ButtonLink to="/products">Produits</ButtonLink></NavLink>
-          <NavLink><ButtonLink  onClick={handleModalOpen}>Admin</ButtonLink></NavLink>
+             {isAuthenticated && isAdmin && (
+            <NavLink><ButtonLink to="/admin">Admin</ButtonLink></NavLink>
+          )}
+          {isAuthenticated ? (
+            <NavLink><ButtonLink onClick={handleLogout}>Déconnexion</ButtonLink></NavLink>
+          ) : (
+            <NavLink><ButtonLink onClick={handleModalOpen}>Se connecter / S'inscrire</ButtonLink></NavLink>
+          )}
         </div>
       </DesktopNavLinks>
       <MobileNavContainer>
