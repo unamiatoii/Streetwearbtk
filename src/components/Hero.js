@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { Typewriter } from 'react-simple-typewriter';
 import { FaShoppingBag } from 'react-icons/fa';
 import image1 from '../assets/images/back.svg';
-import image2 from '../assets/images/hoodie.png';
+import image2 from '../assets/images/Logobtk.gif';
 import '../index.css';
 
 const HeroSection = styled.section`
