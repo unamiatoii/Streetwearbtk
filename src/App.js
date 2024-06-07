@@ -7,25 +7,30 @@ import Products from './pages/Products';
 import Admin from './pages/Admin';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
+import ArticlesPage from './pages/ArticlesPage';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Simulate authentication status
-    const user = {
-      isAuthenticated: true, // Simulate user authentication status
-      isAdmin: false, // Simulate user admin status
-    };
+    // Lecture des informations d'authentification et de rôle à partir du localStorage
+    const token = localStorage.getItem('authToken');
+    const role = localStorage.getItem('userRole');
 
-    setIsAuthenticated(user.isAuthenticated);
-    setIsAdmin(user.isAdmin);
+    if (token) {
+      setIsAuthenticated(true);
+      if (role === 'admin') {
+        setIsAdmin(true);
+      }
+    }
   }, []);
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setIsAdmin(false);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userRole');
     // Add any additional logout logic here (e.g., API call to revoke token)
   };
 
@@ -33,15 +38,23 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
-          <div>
+         <div>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<Products />} />
             <Route
               path="/admin"
               element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <ProtectedRoute isAuthenticated={isAuthenticated && isAdmin}>
                   <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/store"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <ArticlesPage />
                 </ProtectedRoute>
               }
             />

@@ -1,5 +1,3 @@
-// frontend/src/components/Header.js
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
@@ -13,7 +11,8 @@ const Nav = styled.nav`
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  
+  color: white;
+
   @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
     padding: 10px;
   }
@@ -31,7 +30,7 @@ const DesktopNavLinks = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 99%;
+  width: 100%;
   list-style: none;
 
   .nav-links-container {
@@ -103,13 +102,9 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
         <ListItemText primary="Accueil" />
       </ListItem>
       
-      {isAuthenticated && isAdmin && (
-        <ListItem button component={Link} to="/admin" onClick={toggleDrawer(false)}>
-          <ListItemText primary="Admin" />
-        </ListItem>
-      )}
+     
       {isAuthenticated ? (
-        <ListItem button onClick={handleLogout}>
+        <ListItem button onClick={() => { handleLogout(); toggleDrawer(false)(); }}>
           <ListItemText primary="Déconnexion" />
         </ListItem>
       ) : (
@@ -128,9 +123,7 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
         </Link>
         <div className="nav-links-container">
           <NavLink><ButtonLink to="/">Accueil</ButtonLink></NavLink>
-             {isAuthenticated && isAdmin && (
-            <NavLink><ButtonLink to="/admin">Admin</ButtonLink></NavLink>
-          )}
+            
           {isAuthenticated ? (
             <NavLink><ButtonLink onClick={handleLogout}>Déconnexion</ButtonLink></NavLink>
           ) : (
@@ -143,7 +136,7 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
           <LogoImage src={logo} alt="Boutique Logo" />
         </Link>
         <MobileMenuButton onClick={toggleDrawer(true)}>
-          <MenuIcon style={{ color: 'white' }} />
+          <MenuIcon />
         </MobileMenuButton>
       </MobileNavContainer>
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>

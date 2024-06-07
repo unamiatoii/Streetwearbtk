@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { TextField, CircularProgress, Snackbar, Alert } from '@mui/material';
+import { TextField, CircularProgress } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
@@ -55,11 +55,16 @@ const LoginForm = ({ handleClose, navigate, showNotification }) => {
     onSubmit: async (values) => {
       try {
         const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', values);
-        const token = response.data.token;
+        const { token, role } = response.data;
         localStorage.setItem('authToken', token);
+        localStorage.setItem('userRole', role);
         showNotification('Login successful!', 'success');
         handleClose();
-        navigate('/admin');
+        if (role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/store');
+        }
       } catch (error) {
         console.error('Login failed:', error);
         showNotification('Login failed. Please check your credentials and try again.', 'error');
