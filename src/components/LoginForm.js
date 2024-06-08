@@ -4,6 +4,7 @@ import { TextField, CircularProgress } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const StyledTextField = styled(TextField)`
   width: 100%;
@@ -45,7 +46,9 @@ const validationSchema = yup.object({
     .required('Password is required'),
 });
 
-const LoginForm = ({ handleClose, navigate, showNotification }) => {
+const LoginForm = ({ handleClose, showNotification }) => {
+  const navigate = useNavigate();
+
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -54,19 +57,25 @@ const LoginForm = ({ handleClose, navigate, showNotification }) => {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
+        console.log('Sending login request with values:', values);
         const response = await axios.post('https://backend-cpi3.onrender.com/api/auth/login', values);
-        const { token, role } = response.data;
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('userRole', role);
-        showNotification('Login successful!', 'success');
-        handleClose();
-        if (role === 'admin') {
-          navigate('/admin');
+        console.log('Login response:', response);
+        if (response.data.token && response.data.role) {
+          const { token, role } = response.data;
+          localStorage.setItem('authToken', token);
+          localStorage.setItem('userRole', role);
+          showNotification('Login successful!', 'success');
+          handleClose();
+          if (role === 'admin') {
+            navigate('/admin');
+          } else {
+            navigate('/store');
+          }
         } else {
-          navigate('/store');
+          showNotification('Login failed. Invalid response from server.', 'error');
         }
       } catch (error) {
-        console.error('Login failed:', error);
+        console.error('Login error:', error);
         showNotification('Login failed. Please check your credentials and try again.', 'error');
       }
     },

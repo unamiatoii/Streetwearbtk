@@ -9,19 +9,16 @@ import RegisterForm from './RegisterForm';
 import './LoginModal.css';
 
 const ModalWrapper = styled.div`
- display: flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background-color: white;
-  
-    border-radius: 8px;
+  border-radius: 8px;
   padding: 50px 20px;
 `;
 
 const ModalContent = styled.div`
-
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -77,7 +74,7 @@ const ToggleButton = styled.button`
   }
 `;
 
-const LoginModal = ({ open, handleClose }) => {
+const LoginModal = ({ open, handleClose, onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [notification, setNotification] = useState({ open: false, message: '', severity: '' });
   const navigate = useNavigate();
@@ -88,6 +85,16 @@ const LoginModal = ({ open, handleClose }) => {
 
   const showNotification = (message, severity) => {
     setNotification({ open: true, message, severity });
+  };
+
+  const handleLoginSuccess = (token, role) => {
+    onLogin(token, role);
+    handleClose();
+    if (role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/store');
+    }
   };
 
   return (
@@ -112,7 +119,7 @@ const LoginModal = ({ open, handleClose }) => {
                 classNames="form"
                 unmountOnExit
               >
-                <LoginForm handleClose={handleClose} navigate={navigate} showNotification={showNotification} />
+                <LoginForm handleClose={handleClose} showNotification={showNotification} onLoginSuccess={handleLoginSuccess} />
               </CSSTransition>
               <CSSTransition
                 in={!isLogin}
@@ -125,7 +132,7 @@ const LoginModal = ({ open, handleClose }) => {
             </ModalContent>
             <ToggleButtonsWrapper>
               <ToggleButton onClick={() => setIsLogin(true)}>
-                J'ai deja un compte
+                J'ai déjà un compte
               </ToggleButton>
               <ToggleButton onClick={() => setIsLogin(false)}>
                 Créer un compte

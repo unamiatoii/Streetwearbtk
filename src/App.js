@@ -14,7 +14,6 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // Lecture des informations d'authentification et de rôle à partir du localStorage
     const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
 
@@ -31,35 +30,40 @@ function App() {
     setIsAdmin(false);
     localStorage.removeItem('authToken');
     localStorage.removeItem('userRole');
-    // Add any additional logout logic here (e.g., API call to revoke token)
+  };
+
+  const handleLogin = (token, role) => {
+    setIsAuthenticated(true);
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('userRole', role);
+    if (role === 'admin') {
+      setIsAdmin(true);
+    }
   };
 
   return (
     <ThemeProvider theme={theme}>
       <Router>
         <GlobalStyle />
-         <div>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/products" element={<Products />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated && isAdmin}>
-                  <Admin />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/store"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated}>
-                  <ArticlesPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-        </div>
+        <Header isAuthenticated={isAuthenticated} isAdmin={isAdmin} onLogout={handleLogout} onLogin={handleLogin} />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated && isAdmin}>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/store"
+            element={
+                    <ArticlesPage />
+                 }
+          />
+        </Routes>
       </Router>
     </ThemeProvider>
   );

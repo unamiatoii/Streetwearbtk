@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import ArticleList from './../components/ArticleList';
 import SortAndFilter from './../components/SortAndFilter';
-import Header from './../components/Header';
 import axios from 'axios';
 
 const PageWrapper = styled.div`
@@ -68,7 +67,7 @@ const ArticlesPage = () => {
 
   return (
     <>
-      <Header />
+     
       <PageWrapper>
         <Title>Articles</Title>
         <SortAndFilter 

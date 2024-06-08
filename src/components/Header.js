@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import { Drawer, IconButton, List, ListItem, ListItemText } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { Drawer, IconButton, List, ListItem, ListItemText, Snackbar, Alert } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import axios from 'axios';
 import logo from '../assets/images/Logo.svg';
 import LoginModal from './LoginModal';
 
@@ -72,13 +73,49 @@ const ButtonLink = styled(Link)`
   }
 `;
 
+const LoginButton = styled.button`
+  display: inline-block;
+  padding: 15px 25px;
+  background-color: green;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darkgreen;
+  }
+`;
+
+const LogoutButton = styled.button`
+  display: inline-block;
+  padding: 15px 25px;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    background-color: darkred;
+  }
+`;
+
 const MobileMenuButton = styled(IconButton)`
   color: white;
 `;
 
-const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
+const Header = ({ isAuthenticated, isAdmin, onLogin, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: '' });
+  const navigate = useNavigate();
 
   const toggleDrawer = (open) => () => {
     setDrawerOpen(open);
@@ -92,8 +129,41 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
     setModalOpen(false);
   };
 
-  const handleLogout = () => {
-    onLogout();
+  const showNotification = (message, severity) => {
+    setNotification({ open: true, message, severity });
+  };
+
+  const handleNotificationClose = () => {
+    setNotification({ ...notification, open: false });
+  };
+
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.post('https://backend-cpi3.onrender.com/api/auth/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userRole');
+      onLogout();
+      showNotification('Logout successful.', 'success');
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      showNotification('Logout failed. Please try again.', 'error');
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    onLogin();
+    handleModalClose();
+    if (isAdmin) {
+      navigate('/admin');
+    } else {
+      navigate('/store');
+    }
   };
 
   const drawerList = (
@@ -101,8 +171,6 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
       <ListItem button component={Link} to="/" onClick={toggleDrawer(false)}>
         <ListItemText primary="Accueil" />
       </ListItem>
-      
-     
       {isAuthenticated ? (
         <ListItem button onClick={() => { handleLogout(); toggleDrawer(false)(); }}>
           <ListItemText primary="Déconnexion" />
@@ -123,11 +191,10 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
         </Link>
         <div className="nav-links-container">
           <NavLink><ButtonLink to="/">Accueil</ButtonLink></NavLink>
-            
           {isAuthenticated ? (
-            <NavLink><ButtonLink onClick={handleLogout}>Déconnexion</ButtonLink></NavLink>
+            <NavLink><LogoutButton onClick={handleLogout}>Déconnexion</LogoutButton></NavLink>
           ) : (
-            <NavLink><ButtonLink onClick={handleModalOpen}>Se connecter / S'inscrire</ButtonLink></NavLink>
+            <NavLink><LoginButton onClick={handleModalOpen}>Se connecter / S'inscrire</LoginButton></NavLink>
           )}
         </div>
       </DesktopNavLinks>
@@ -142,7 +209,12 @@ const Header = ({ isAuthenticated, isAdmin, onLogout }) => {
       <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
         {drawerList}
       </Drawer>
-      <LoginModal open={modalOpen} handleClose={handleModalClose} />
+      <LoginModal open={modalOpen} handleClose={handleModalClose} onLogin={handleLoginSuccess} />
+      <Snackbar open={notification.open} autoHideDuration={6000} onClose={handleNotificationClose}>
+        <Alert onClose={handleNotificationClose} severity={notification.severity}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Nav>
   );
 };
